@@ -7,7 +7,7 @@ import time
 import logging
 import sqlite3
 import datetime
-
+import requests
 
 # Dlib  / Use frontal face detector of Dlib
 detector = dlib.get_frontal_face_detector()
@@ -32,6 +32,7 @@ cursor.execute(create_table_sql)
 # Commit changes and close the connection
 conn.commit()
 conn.close()
+url = "https://5000-01j647jp3h6ar3vmwzszcrg430.cloudspaces.litng.ai/download/get_file"
 
 
 class Face_Recognizer:
@@ -81,9 +82,16 @@ class Face_Recognizer:
         self.reclassify_interval = 10
 
     #  "features_all.csv"  / Get known faces from "features_all.csv"
+
+    def download_faces(self):
+        response = requests.get(url)
+        with open("features_all.csv", 'wb') as f:
+            f.write(response.content)
+
     def get_face_database(self):
-        if os.path.exists("data/features_all.csv"):
-            path_features_known_csv = "data/features_all.csv"
+        self.download_faces()
+        if os.path.exists("features_all.csv"):
+            path_features_known_csv = "features_all.csv"
             csv_rd = pd.read_csv(path_features_known_csv, header=None)
             for i in range(csv_rd.shape[0]):
                 features_someone_arr = []
